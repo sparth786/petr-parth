@@ -4,12 +4,12 @@ export const makeRequest = ({ url, method = 'GET', header = {}, data = {} }) => 
 
 	const headers = Object.assign(header, {
 		'Content-Type': 'application/json',
-		'AUTH-HEADER': 'i34dacdjhe7g5ko1emt7ebc8kijqdn217ikuqrm1klk1l3tpe64gqclo0ito53l9',
+		'AUTH-HEADER': localStorage.getItem('token'),
 	});
 
 	const params = { method, headers };
 
-	if (method === 'POST') params.body = JSON.stringify(data);
+	if (method === 'POST' || method === 'PUT') params.body = JSON.stringify(data);
 
 	return fetch(`${BASE_URL}/${url}`, params)
 		.then((response) => {

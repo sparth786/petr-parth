@@ -4,14 +4,6 @@ import { Button, Table, FormGroup, ControlLabel, Col, Form, FormControl } from '
 import { makeRequest } from './helpers/fetchHelper';
 import './App.css';
 
-const initBankAccount = {
-	name: 'Bank Of China',
-	account: '123456789',
-	iban: 'DE36AD57499494',
-	sortCode: '12-34-56',
-	swift: 'BOFSAUS3N'
-};
-
 class App extends Component {
 
 	constructor(props) {
@@ -24,11 +16,15 @@ class App extends Component {
 	}
 
 	componentDidMount() {
-		makeRequest({ url: 'countries' })
-			.then(data => {
-				this.setState({ bankAccounts: [initBankAccount] });
-			});
+		this.getBankAccounts();
 	}
+
+	getBankAccounts = () => {
+		makeRequest({ url: 'bankdetails' })
+			.then(res => {
+				if (res.items) this.setState({ bankAccounts: res.items });
+			});
+	};
 
 	handleChange = (event) => {
 		const { formBankAccount } = this.state;
@@ -50,10 +46,22 @@ class App extends Component {
 	};
 
 	handleSave = () => {
-		// const { formBankAccount } = this.state;
-		makeRequest({ url: 'countries' })
-			.then(data => {
+		const { formBankAccount } = this.state;
+		let method;
+		if (formBankAccount._id) {
+			method = 'PUT';
+			delete formBankAccount.userId;
+		} else {
+			method = 'POST';
+		}
+
+		if (Array.isArray(formBankAccount.sortCode)) {
+			formBankAccount.sortCode = formBankAccount.sortCode.join('-');
+		}
+		makeRequest({ url: 'bankdetails', data: formBankAccount, method })
+			.then(() => {
 				this.setState({ formBankAccount: { sortCode: [] } });
+				this.getBankAccounts();
 			});
 	};
 
